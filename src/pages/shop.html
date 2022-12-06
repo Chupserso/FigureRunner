@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en-ru">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../libraries/sweetalert.js"></script>
+    <title>Shop</title>
+</head>
+<body>
+    <header class="header">
+        <h1>Shop</h1>
+    </header>
+    <div class="balance">
+        200$
+    </div>
+    <div class="items">
+        <div class="item">
+            <div class="img"><img src="../models/jamal.jpg" alt="jamal"></div>
+            <div class="title">Jamal</div>
+            <div class="description">Jamal - is very very big "Negr"</div>
+            <div class="price">120000$</div>
+            <div class="buy Jamal"><button onclick="buyItem('Jamal', 120000)">Buy</button></div>
+        </div>
+        <div class="item">
+            <div class="img"><img src="../models/pavel.jpg" alt="pavel"></div>
+            <div class="title">Pavlik ravlik</div>
+            <div class="description">Pavlik - man history. He did more than Adam and Eva</div>
+            <div class="price">50000000$</div>
+            <div class="buy Pavlik"><button onclick="buyItem('Pavlik', 50000000)">Buy</button></div>
+        </div>
+        <div class="item">
+            <div class="img"><img src="../models/scala.jpg" alt="scala"></div>
+            <div class="title">Dwayne Johnson</div>
+            <div class="description">Dwayne Johnson - the legend of the world of cinema, and memes</div>
+            <div class="price">200000$</div>
+            <div class="buy Dwayne"><button onclick="buyItem('Dwayne', 200000)">Buy</button></div>
+        </div>
+        <div class="item">
+            <div class="img"><img src="../models/bogdan.jpg" alt="bogdan"></div>
+            <div class="title">Bogdan</div>
+            <div class="description">Bogdan - typical representative of "Оффнiк"</div>
+            <div class="price">1700000$</div>
+            <div class="buy Bogdan"><button onclick="buyItem('Bogdan', 1700000)">Buy</button></div>
+        </div>
+        <div class="item">
+            <div class="img"><img src="../models/torreto.jpeg" alt="torreto"></div>
+            <div class="title">Torreto</div>
+            <div class="description">Toretto - legend of the racing world, the father of all racers</div>
+            <div class="price">5700000$</div>
+            <div class="buy Torreto"><button onclick="buyItem('Torreto', 5700000)">Buy</button></div>
+        </div>
+        <div class="item">
+            <div class="img"><img src="../models/torreto_clone.jpg" alt="torreto"></div>
+            <div class="title">Torreto budget</div>
+            <div class="description">Toretto budget - "тайландський торрето" legend of the racing world, the father of all racers</div>
+            <div class="price">300000$</div>
+            <div class="buy TorretoClone"><button onclick="buyItem('TorretoClone', 300000)">Buy</button></div>
+        </div>
+        <div class="item">
+            <div class="img"><img src="../models/pavel_navi.jpg" alt="bogdan"></div>
+            <div class="title">Pavlik navik</div>
+            <div class="description">Pavlik - this is the legend of the Navi team</div>
+            <div class="price">10000000$</div>
+            <div class="buy PavlikNavik"><button onclick="buyItem('PavlikNavik', 1700000)">Buy</button></div>
+        </div>
+        <div class="item">
+            <div class="img"><img src="../models/kolomoisky.png" alt="kolomoisky"></div>
+            <div class="title">Kolomoisky</div>
+            <div class="description">Kolomoisky - it's the bug that sits in everyone's wallet</div>
+            <div class="price">1300000$</div>
+            <div class="buy Kolomoisky"><button onclick="buyItem('Kolomoisky', 1300000)">Buy</button></div>
+        </div>
+        <div class="item">
+            <div class="img"><img src="../models/gordon.jpeg" alt="gordon"></div>
+            <div class="title">Gordon</div>
+            <div class="description">Gordon - Legend of memes and jokes</div>
+            <div class="price">3500000$</div>
+            <div class="buy Gordon"><button onclick="buyItem('Gordon', 3500000)">Buy</button></div>
+        </div>
+        <div class="item">
+            <div class="img"><img src="../models/big-mac.png" alt="big-mac"></div>
+            <div class="title">Big Mac</div>
+            <div class="description">Big Mac - there's no need to even explain</div>
+            <div class="price">1200000$</div>
+            <div class="buy BigMac"><button onclick="buyItem('BigMac', 1200000)">Buy</button></div>
+        </div>
+        <div class="item">
+            <div class="img"><img src="../models/zadrot.jpg" alt="zadrot"></div>
+            <div class="title">Zadrot</div>
+            <div class="description">Zadrot - a zadrot who plays DOTA</div>
+            <div class="price">1500000$</div>
+            <div class="buy Zadrot"><button onclick="buyItem('Zadrot', 1500000)">Buy</button></div>
+        </div>
+    </div>
+    <script>
+        function buyItem(name, price) {
+            let items = JSON.parse(localStorage.getItem("items"));
+            if (price <= localStorage.getItem("balance")) {
+                items.push(name);
+                localStorage.removeItem("items");
+                localStorage.setItem("items", JSON.stringify(items));
+                let balance = localStorage.getItem("balance");
+                localStorage.removeItem("balance");
+                localStorage.setItem("balance", balance - price);
+                document.querySelector(".balance").innerHTML = localStorage.getItem("balance") + "$";
+                document.querySelector("." + name).innerHTML = "<button class='" + name + "' onclick='selectItem(`" + name +"`)'>Select</button>";
+                let audio = new Audio();
+                audio.src = "../music/buySound.mp3";
+                audio.play();
+            } else {
+                Swal.fire({title: "Not enough money!!!", icon: 'error'});
+                let audio = new Audio();
+                audio.src = "../music/buyErrorSound.mp3";
+                audio.play();
+            }
+        }
+        function selectDeleteItem(name) {
+            let audio = new Audio();
+            audio.src = "../music/buttonClickSound.mp3";
+            audio.play();
+            localStorage.removeItem("select");
+            localStorage.setItem("select", "");
+            document.querySelector("." + name).innerHTML = "<button onclick='selectItem(`" + name +"`)'>Select</button>";
+        }
+        function selectItem(name) {
+            let audio = new Audio();
+            audio.src = "../music/buttonClickSound.mp3";
+            audio.play();
+            if (localStorage.getItem("select") != "") {
+                document.querySelector("." + localStorage.getItem("select")).innerHTML = '<div class="buy ' + localStorage.getItem("select") + '"><button onclick="selectItem(`' + localStorage.getItem("select") + '`, 1500)">Select</button></div>';
+            }
+            localStorage.removeItem("select");
+            localStorage.setItem("select", name);
+            document.querySelector("." + name).innerHTML = "<button class='" + name + "' onclick='selectDeleteItem(`" + name +"`)'>Selected</button>";
+        }
+        if (localStorage.getItem("balance")) {
+            console.log("Balance is ok");
+        } else {
+            localStorage.setItem("balance", 150000);
+        }
+        if (localStorage.getItem("items")) {
+            console.log("Items is ok");
+        } else {
+            localStorage.setItem("items", JSON.stringify([]));
+        }
+        if (localStorage.getItem("select")) {
+            console.log("Select is ok");
+        } else {
+            localStorage.setItem("select", "");
+        }
+        if (localStorage.getItem("promo")) {
+            console.log("Promo is ok");
+        } else {
+            localStorage.setItem("promo", JSON.stringify([]));
+        }
+        let items = JSON.parse(localStorage.getItem("items"));
+        if (items.length > 0) {
+            for (let i = 0; i < items.length; i++) {
+                let name = items[i];
+                if (localStorage.getItem("select") == name) {
+                    document.querySelector("." + name).innerHTML = "<button class='" + name + "' onclick='selectDeleteItem(`" + name +"`)'>Selected</button>";
+                } else {
+                    document.querySelector("." + name).innerHTML = "<button class='" + name + "' onclick='selectItem(`" + name +"`)'>Select</button>";
+                }
+            }
+        }
+        document.querySelector(".balance").innerHTML = localStorage.getItem("balance") + "$";
+    </script>
+    <style>
+        body::-webkit-scrollbar-track {
+            background: #fff;
+        }
+        .balance {
+            z-index: 300;
+            position: fixed;
+            right: 0;
+            top: 0;
+            min-width: 120px;
+            height: 100px;
+            background: black;
+            color: yellow;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 30px;
+            font-weight: bold;
+        }
+        @media screen and (max-width: 430px) {
+            .balance {
+                top: 15%;
+                height: 70px;
+            }
+        }
+        .items {
+            margin: 0px auto;
+            display: flex;
+            justify-content: space-between;
+            max-width: 80%;
+            padding: 0 30px;
+            flex-wrap: wrap;
+        }
+        .item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 50px;
+            padding: 10px;
+            border: 1px solid rgb(222, 3, 149);
+        }
+        .item .img {
+            width: 320px;
+            height: 320px;
+        }
+        .title {
+            margin-top: 5px;
+            color: rgb(222, 3, 149);
+            font-size: 30px;
+            font-weight: bold;
+        }
+        .description {
+            color: white;
+            font-size: 20px;
+            margin-top: 5px;
+        }
+        .price {
+            font-size: 25px;
+            color: yellow;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        button {
+            margin-top: 5px;
+            cursor: pointer;
+            position: relative;
+            display: inline-block;
+            width: 200px;
+            height: 40px;
+            text-align: center;
+            color: #fff;
+            font-size: 24px;
+            text-transform: uppercase;
+            text-decoration: none;
+            font-family: sans-serif;
+            box-sizing: border-box;
+            background: linear-gradient(90deg, #03a9f4, #f441a5, #ffeb3b, #03a9f4);
+            background-size: 400%;
+            border-radius: 30px;
+            z-index: 1;
+        }
+        button:hover {
+            animation: animate 8s linear infinite;
+        }
+        @keyframes animate {
+            0% {
+                background-position: 0%;
+            }
+            100% {
+                background-position: 400%;
+            }
+        }
+        button:before {
+            content: "";
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            bottom: -5px;
+            left: -5px;
+            z-index: -1;
+            background: linear-gradient(90deg, #03a9f4, #f441a5, #ffeb3b, #03a9f4);
+            background-size: 400%;
+            border-radius: 40px;
+            opacity: 0;
+            transition: .5s;
+        }
+        button:hover:before {
+            filter: blur(20px);
+            opacity: 1;
+            animation: animate 8s linear infinite;
+        }
+        img {
+            width: 100%;
+            height: 100%;
+        }
+        @font-face {
+            font-family: 'Open Sans';
+            font-style: normal;
+            font-weight: 700;
+            src: local('Open Sans Bold'), local('OpenSans-Bold'), url(http://themes.googleusercontent.com/static/fonts/opensans/v6/k3k702ZOKiLJc3WVjuplzKRDOzjiPcYnFooOUGCOsRk.woff) format('woff');
+        }
+        header {
+            height: 130px;
+            border-bottom: 1px solid rgb(222, 3, 149);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        h1 {
+            font-family: 'Open Sans', sans-serif;
+            color: #ffffff;
+            text-shadow: 0 0 5px #ffffff, 0 0 10px #ffffff, 0 0 20px #ffffff, 0 0 40px rgb(222, 3, 149), 0 0 80px rgb(222, 3, 149), 0 0 90px rgb(222, 3, 149), 0 0 100px rgb(222, 3, 149), 0 0 150px rgb(222, 3, 149);
+            text-transform: uppercase;
+            text-align: center;
+            font-weight: bold;
+            font-style: italic;
+            font-size: 60px;
+        }
+        body {
+            background: url(../img/mainPage-fone.png);
+        }
+        * {
+            padding: 0px;
+            margin: 0px;
+        }
+        @media screen and (max-width:410px) {
+            .items {
+                padding: 0;
+            }
+            .item .img {
+                width: 270px;
+                height: 270px;
+            }
+        }
+    </style>
+</body>
+</html>

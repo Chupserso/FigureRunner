@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en-ru">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Developers</title>
+</head>
+<body>
+    <header class="header">
+        <h1>Developers</h1>
+    </header>
+    <div class="developers">
+        <div class="item">Junior front-end developer: Evgeniy Chupahin</div>
+        <div class="item">Middle front-end developer: Evgeniy Chupahin</div>
+        <div class="item">Senior front-end developer: Evgeniy Chupahin</div>
+        <div class="item">Team lead: Evgeniy Chupahin</div>
+        <div class="item">Game design: Evgeniy Chupahin</div>
+        <div class="item">Level design: Evgeniy Chupahin</div>
+        <div class="item">Idea creator: Evgeniy</div>
+    </div>
+    <script>
+        if (localStorage.getItem("balance")) {
+            console.log("Balance is ok");
+        } else {
+            localStorage.setItem("balance", 150000);
+        }
+        if (localStorage.getItem("items")) {
+            console.log("Items is ok");
+        } else {
+            localStorage.setItem("items", JSON.stringify([]));
+        }
+        if (localStorage.getItem("select")) {
+            console.log("Select is ok");
+        } else {
+            localStorage.setItem("select", "");
+        }
+        if (localStorage.getItem("promo")) {
+            console.log("Promo is ok");
+        } else {
+            localStorage.setItem("promo", JSON.stringify([]));
+        }
+        document.querySelector(".balance").innerHTML = localStorage.getItem("balance") + "$";
+    </script>
+    <style>
+        .balance {
+            z-index: 300;
+            position: fixed;
+            right: 0;
+            top: 0;
+            min-width: 120px;
+            height: 100px;
+            background: black;
+            color: yellow;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 30px;
+            font-weight: bold;
+        }
+        @media screen and (max-width: 430px) {
+            .balance {
+                top: 15%;
+            }
+        }
+        .item {
+            margin-top: 30px;
+            align-items: center;
+            font-size: 30px;
+            color: white;
+        }
+        .developers {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        @font-face {
+            font-family: 'Open Sans';
+            font-style: normal;
+            font-weight: 700;
+            src: local('Open Sans Bold'), local('OpenSans-Bold'), url(http://themes.googleusercontent.com/static/fonts/opensans/v6/k3k702ZOKiLJc3WVjuplzKRDOzjiPcYnFooOUGCOsRk.woff) format('woff');
+        }
+        header {
+            height: 130px;
+            border-bottom: 1px solid pink;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        h1 {
+            font-family: 'Open Sans', sans-serif;
+            color: #ffffff;
+            text-shadow: 0 0 5px #ffffff, 0 0 10px #ffffff, 0 0 20px #ffffff, 0 0 40px rgb(222, 3, 149), 0 0 80px rgb(222, 3, 149), 0 0 90px rgb(222, 3, 149), 0 0 100px rgb(222, 3, 149), 0 0 150px rgb(222, 3, 149);
+            text-transform: uppercase;
+            text-align: center;
+            font-weight: bold;
+            font-style: italic;
+            font-size: 60px;
+        }
+        body {
+            background: url(../img/mainPage-fone.png);
+        }
+        * {
+            padding: 0px;
+            margin: 0px;
+        }
+        @media screen and (max-width: 604px) {
+            .item {
+                font-size: 20px;
+            }
+        }
+        @media screen and (max-width: 423px) {
+            .item {
+                font-size: 16px;
+            }
+            h1 {
+                font-size: 40px;
+            }
+        }
+    </style>
+</body>
+</html>

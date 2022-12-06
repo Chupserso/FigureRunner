@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en-ru">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="./src/libraries/sweetalert.js"></script>
+    <title>Figure-runner</title>
+</head>
+<body>
+    <header class="header">
+        <h1>Menu</h1>
+    </header>
+    <section class="links">
+        <div>
+            <button class="btn" onclick="
+            if (localStorage.getItem('select') != '') {
+                document.location.href = './src/pages/game.html'
+            } else {
+                Swal.fire('No character selected!!!');
+            }
+                ">Play</button>
+        </div>
+        <div>
+            <button class="btn" onclick="let audio = new Audio();audio.src = './src/music/buttonClickSound.mp3';audio.play();document.location.href = './src/pages/shop.html'">Shop</button>
+        </div>
+        <div>
+            <button class="btn" onclick="let audio = new Audio();audio.src = './src/music/buttonClickSound.mp3';audio.play();document.location.href = './src/pages/developers.html'">Developers</button>
+        </div>
+        <div>
+            <button class="btn" onclick="let audio = new Audio();audio.src = './src/music/buttonClickSound.mp3';audio.play();promoActive(this)">Promo code</button>
+        </div>
+    </section>
+    <div class="balance">
+        200$
+    </div>
+    <script>
+        function promoActive() {
+            let promo_all = {
+                "#pashageyandlox": 250000,
+                "#dudovadozvolae": 300000,
+                "#cheeseburger": 100000,
+                "#pandainmakaka": 50000,
+                "#slavaukrainiandcygulevpavloandrazrabamcogosaitu": 4500000,
+                "#surprise": "very big surprise",
+                "#pravdavtomyshoeenemae": 135000,
+                "#bagach": 90000,
+                "#gordonvteme": 75000,
+                "#wtf": 40000,
+                "#brenda2018": 100000000
+            };
+            Swal.fire({
+                title: 'Promo code',
+                input: 'text',
+                preConfirm: (promo) => {
+                    let items = Object.keys(promo_all);
+                    let countItems = 0;
+                    if (items.indexOf(promo) != -1) {
+                        let my_promo = JSON.parse(localStorage.getItem("promo"));
+                        for (let i = 0; i < my_promo.length; i++) {
+                            if (promo == my_promo[i]) {
+                                countItems += 1;
+                            }
+                        }
+                        if (countItems != 0) {
+                            Swal.fire({title: "You have already entered this promo code!!!", icon: 'error'});
+                            let audio = new Audio();
+                            audio.src = "./src/music/buyErrorSound.mp3";
+                            audio.play();
+                        } else {
+                            if (promo != "#surprise") {
+                                Swal.fire({
+                                    title: `Promo activated`,
+                                    icon: 'success'
+                                })
+                                let audio = new Audio();
+                                audio.src = "./src/music/promoSound.mp3";
+                                audio.play();
+                                console.log('Promo activated');
+                                let balance = Number(localStorage.getItem("balance"));
+                                balance += promo_all[promo];
+                                localStorage.removeItem("balance");
+                                localStorage.setItem("balance", balance);
+                                my_promo.push(promo);
+                                localStorage.removeItem("promo");
+                                localStorage.setItem("promo", JSON.stringify(my_promo));
+                                document.querySelector(".balance").innerHTML = localStorage.getItem("balance") + "$";
+                            } else {
+                                Swal.fire({
+                                    title: 'Ти легенда бро, ти дойшов до цього промокоду!!',
+                                    text: 'Паша тебе оцiнив.....',
+                                    imageUrl: './src/img/surprise.jpg',
+                                    imageWidth: 400,
+                                    imageHeight: 200,
+                                    imageAlt: 'Legend image',
+                                })
+                                let audio = new Audio();
+                                audio.src = "./src/music/smileSound.mp3";
+                                audio.play();
+                                my_promo.push(promo);
+                                localStorage.removeItem("promo");
+                                localStorage.setItem("promo", JSON.stringify(my_promo));
+                            }
+                        }
+                    } else {
+                        Swal.fire({title: "Promo code does not exist!!!", icon: 'error'});
+                        let audio = new Audio();
+                        audio.src = "./src/music/buyErrorSound.mp3";
+                        audio.play();
+                    }
+                }
+            })
+        }
+        if (localStorage.getItem("balance")) {
+            console.log("Balance is ok");
+        } else {
+            localStorage.setItem("balance", 150000);
+        }
+        if (localStorage.getItem("items")) {
+            console.log("Items is ok");
+        } else {
+            localStorage.setItem("items", JSON.stringify([]));
+        }
+        if (localStorage.getItem("select")) {
+            console.log("Select is ok");
+        } else {
+            localStorage.setItem("select", "");
+        }
+        if (localStorage.getItem("promo")) {
+            console.log("Promo is ok");
+        } else {
+            localStorage.setItem("promo", JSON.stringify([]));
+        }
+        document.querySelector(".balance").innerHTML = localStorage.getItem("balance") + "$";
+    </script>
+    <style>
+    .balance {
+        z-index: 300;
+        position: fixed;
+        right: 0;
+        top: 0;
+        min-width: 120px;
+        height: 100px;
+        background: black;
+        color: yellow;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 30px;
+        font-weight: bold;
+    }
+    @media screen and (max-width: 430px) {
+        .balance {
+            top: 15%;
+            height: 70px;
+        }
+    }
+    .btn {
+        cursor: pointer;
+        position: relative;
+        display: inline-block;
+        width: 320px;
+        height: 80px;
+        text-align: center;
+        line-height: 60px;
+        color: #fff;
+        font-size: 24px;
+        text-transform: uppercase;
+        text-decoration: none;
+        font-family: sans-serif;
+        box-sizing: border-box;
+        background: linear-gradient(90deg, #03a9f4, #f441a5, #ffeb3b, #03a9f4);
+        background-size: 400%;
+        border-radius: 30px;
+        z-index: 1;
+    }
+    .btn:hover {
+        animation: animate 8s linear infinite;
+    }
+    @keyframes animate {
+        0% {
+            background-position: 0%;
+        }
+        100% {
+            background-position: 400%;
+        }
+    }
+    .btn:before {
+        content: "";
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        bottom: -5px;
+        left: -5px;
+        z-index: -1;
+        background: linear-gradient(90deg, #03a9f4, #f441a5, #ffeb3b, #03a9f4);
+        background-size: 400%;
+        border-radius: 40px;
+        opacity: 0;
+        transition: .5s;
+    }
+    .btn:hover:before {
+        filter: blur(20px);
+        opacity: 1;
+        animation: animate 8s linear infinite;
+    }
+    .links {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        line-height: 100px;
+    }
+    @font-face {
+        font-family: 'Open Sans';
+        font-style: normal;
+        font-weight: 700;
+        src: local('Open Sans Bold'), local('OpenSans-Bold'), url(http://themes.googleusercontent.com/static/fonts/opensans/v6/k3k702ZOKiLJc3WVjuplzKRDOzjiPcYnFooOUGCOsRk.woff) format('woff');
+    }
+    header {
+        height: 130px;
+        border-bottom: 1px solid pink;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    h1 {
+        font-family: 'Open Sans', sans-serif;
+        color: #ffffff;
+        text-shadow: 0 0 5px #ffffff, 0 0 10px #ffffff, 0 0 20px #ffffff, 0 0 40px rgb(222, 3, 149), 0 0 80px rgb(222, 3, 149), 0 0 90px rgb(222, 3, 149), 0 0 100px rgb(222, 3, 149), 0 0 150px rgb(222, 3, 149);
+        text-transform: uppercase;
+        text-align: center;
+        font-weight: bold;
+        font-style: italic;
+        font-size: 60px;
+    }
+    body {
+        background: url(./src/img/mainPage-fone.png);
+    }
+    * {
+        padding: 0px;
+        margin: 0px;
+    }
+    </style>
+</body>
+</html>

@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en-ru">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../libraries/three.min.js"></script>
+    <script src="../libraries/sweetalert.js"></script>
+    <script src="../libraries/gltf-loader.js"></script>
+    <script src="../libraries/jquery.min.js"></script>
+    <style>
+        * {
+            padding: 0px;
+            margin: 0px;
+        }
+        h1 {
+            font-size: 40px;
+            position: fixed;
+            right: 0;
+            top: 0;
+            color: #ffff;
+            text-shadow: 0 0 5px #ffffff, 0 0 10px #ffffff, 0 0 20px #ffffff, 0 0 40px rgb(255, 255, 255), 0 0 80px rgb(255, 255, 255), 0 0 90px rgb(255, 255, 255), 0 0 100px rgb(255, 255, 255), 0 0 150px rgb(255, 255, 255);
+        }
+    </style>
+    <title>Game</title>
+</head>
+<body>
+    <h1 class="score">SCORE: 0</h1>
+    <script>
+        "use strict";
+        
+        if (localStorage.getItem("balance")) {
+            console.log("Balance is ok");
+        } else {
+            localStorage.setItem("balance", 150000);
+        }
+        if (localStorage.getItem("items")) {
+            console.log("Items is ok");
+        } else {
+            localStorage.setItem("items", JSON.stringify([]));
+        }
+        if (localStorage.getItem("select")) {
+            console.log("Select is ok");
+        } else {
+            localStorage.setItem("select", "");
+        }
+        if (localStorage.getItem("promo")) {
+            console.log("Promo is ok");
+        } else {
+            localStorage.setItem("promo", JSON.stringify([]));
+        }
+
+        let scene = new THREE.Scene();
+        let camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 3000);
+        let renderer = new THREE.WebGLRenderer({alpha: false, antialias:true});
+        let texture_loader = new THREE.TextureLoader();
+        let loader = new THREE.GLTFLoader();
+        texture_loader.load("../models/galaxy.jpg", function(texture){
+             scene.background = texture;  
+        });
+        renderer.shadowMapEnabled = true;
+        renderer.setSize(innerWidth, innerHeight);
+        let spotLight = new THREE.SpotLight( 0xffffff );
+        spotLight.position.set( 100, 1000, 700 );
+        spotLight.castShadow = true;
+        spotLight.shadow.mapSize.width = 1024;
+        spotLight.shadow.mapSize.height = 1024;
+        spotLight.shadow.camera.near = 500;
+        spotLight.shadow.camera.far = 4000;
+        spotLight.shadow.camera.fov = 30;
+        scene.add(spotLight);
+        document.body.appendChild(renderer.domElement);
+
+        let player_x, player_y, player_z;
+        let floor_x, floor_y, floor_z;
+        let camera_x, camera_y, camera_z;
+
+        let audio = new Audio();
+        audio.src = "../music/gameSound.mp3";
+        //audio.autoplay = true;
+
+        let score = 0;
+        let lose = false;
+
+        let moveStatus = {
+            left: false,
+            right: false
+        }
+
+        document.onkeydown = function (e) {
+            if (e.keyCode == 65) {
+                moveStatus.left = true;
+            } else if (e.keyCode == 68) {
+                moveStatus.right = true;
+            }
+        }
+        document.onkeyup = function (e) {
+            if (e.keyCode == 65) {
+                moveStatus.left = false;
+            } else if (e.keyCode == 68) {
+                moveStatus.right = false;
+            }
+        }
+
+        let speed = 0.12;
+        let enemy_speed = 0.2;
+        let speed_rotation = 0.07;
+        let met_speed = 0.05;
+
+        let src = "";
+
+        floor_x = 0;
+        floor_y = 0;
+        floor_z = 0;
+
+        camera_x = 0;
+        camera_y = 4;
+        camera_z = 7;
+
+        player_x = 0;
+        player_y = 1.5;
+        player_z = 1.6;
+
+        let select;
+        if (localStorage.getItem("select") != "") {
+            select = localStorage.getItem("select");
+        } else {
+            document.location.href = "../../index.html";
+        }
+
+        if (select == "Jamal") {
+            src = "jamal.jpg";
+        } else if (select == "Dwayne") {
+            src = "scala.jpg";
+        } else if (select == "Kolomoisky") {
+            src = "kolomoisky.png";
+        } else if (select == "Gordon") {
+            src = "gordon.jpeg";
+        } else if (select == "Pavlik") {
+            src = "pavel.jpg";
+        } else if (select == "Zadrot") {
+            src = "zadrot.jpg";
+        } else if (select == "BigMac") {
+            src = "big-mac.png";
+        } else if (select == "Bogdan") {
+            src = "bogdan.jpg"
+        } else if (select == "PavlikNavik") {
+            src = "pavel_navi.jpg"
+        } else if (select == "Torreto") {
+            src = "torreto.jpeg";
+        } else if (select == "TorretoClone") {
+            src = "torreto_clone.jpg";
+        } else if (select == "") {
+            document.location.href = "../../index.html"
+        }
+
+        function Meteorite(x, y, z) {
+            let random_form = Math.floor(Math.random() * (15 - 3) + 3);
+            let random_scale = Math.floor(Math.random() * (3 - 1) + 1);
+            let met_geometry = new THREE.SphereGeometry(random_scale, random_form);
+            let met_material = new THREE.MeshBasicMaterial({
+                map: texture_loader.load("../models/meteorite.jpg", function(map){
+                    map.wrapS = THREE.RepeatWrapping;
+                    map.wrapT = THREE.RepeatWrapping;
+                    map.anisotropy = 20;
+                    map.repeat.set(1, 1);
+                })
+            });
+            let met = new THREE.Mesh(met_geometry, met_material);
+            scene.add(met);
+            let init = () => {
+                requestAnimationFrame(init);
+                met.position.x = x;
+                met.position.y = y;
+                met.position.z = z;
+                
+                z += met_speed;
+                if (z >= player_x + 4) {
+                    scene.remove(met);
+                }
+            }
+            init();
+        }
+        function drawMeteorites() {
+            for (let i = 0; i < 7; i++) {
+                let x = Math.floor(Math.random() * (15 - -15) + -15);
+                let meteorite = new Meteorite(x, 20, player_z - Math.floor(Math.random() * (500 - 450) + 450));
+            }
+        }
+        setInterval(drawMeteorites, 500);
+
+        function Enemy(x, y, z) {
+            let enemy_geometry = new THREE.BoxGeometry(2, 7, 2);
+            let enemy_material = new THREE.MeshBasicMaterial({
+                color: "red",
+                map: texture_loader.load("../models/" + src, function(map){
+                    map.wrapS = THREE.RepeatWrapping;
+                    map.wrapT = THREE.RepeatWrapping;
+                    map.anisotropy = 20;
+                    map.repeat.set(1, 1);
+                })
+            });
+            let enemy = new THREE.Mesh(enemy_geometry, enemy_material);
+            scene.add(enemy);
+
+            let enemyLoop = () => {
+                requestAnimationFrame(enemyLoop);
+                enemy.position.x = x;
+                enemy.position.y = y;
+                enemy.position.z = z;
+                
+                if (lose == false) {
+                    z += speed + 0.05;
+                } else {
+                    setTimeout(function(){
+                        scene.remove(enemy);
+                    }, 2000);
+                }
+                if (z >= 5) {
+                    scene.remove(enemy);
+                }
+
+                if (player_x <= x + 2 && player_x >= x - 2 && player_z <= z + 2 && player_z >= z) {
+                    //lose = true;
+                }
+            }
+
+            enemyLoop();
+        }
+
+        function drawEnemyBlocks() {
+            for (let i = 0; i < 7; i++) {
+                let x = Math.floor(Math.random() * (12 - -12) + -12);
+                let enemy = new Enemy(x, 2, player_z - Math.floor(Math.random() * (190 - 150) + 150));
+            }
+        }
+        setInterval(drawEnemyBlocks, 2000);
+
+        let player_geometry = new THREE.SphereGeometry(1, 100, 100);
+        let player_material = new THREE.MeshBasicMaterial({
+            map: texture_loader.load("../models/" + src, function(map){
+                map.wrapS = THREE.RepeatWrapping;
+                map.wrapT = THREE.RepeatWrapping;
+                map.anisotropy = 20;
+                map.repeat.set(1, 1);
+            })
+        });
+        let player = new THREE.Mesh(player_geometry, player_material);
+        scene.add(player);
+
+        let planet_geometry = new THREE.SphereGeometry(500, 100, 100);
+        let planet_material = new THREE.MeshBasicMaterial({
+            color: "green",
+            map: texture_loader.load("../models/" + src, function(map){
+                map.wrapS = THREE.RepeatWrapping;
+                map.wrapT = THREE.RepeatWrapping;
+                map.anisotropy = 20;
+                map.repeat.set(5, 5);
+            })
+        });
+        let planet = new THREE.Mesh(planet_geometry, planet_material);
+        scene.add(planet);
+        planet.position.z = -1200;
+        planet.position.y = 400;
+        planet.position.x = 900;
+
+        let floor_geometry = new THREE.BoxGeometry(30, 1, 10000);
+        let floor_material = new THREE.MeshBasicMaterial({
+            color: "blue",
+            map: texture_loader.load("../models/floor.png", function(map){
+                map.wrapS = THREE.RepeatWrapping;
+                map.wrapT = THREE.RepeatWrapping;
+                map.anisotropy = 10000;
+                map.repeat.set(20, 5000, 1);
+            })
+        });
+        let floor = new THREE.Mesh(floor_geometry, floor_material);
+        scene.add(floor);
+
+        let x;
+        let y;
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            document.querySelector(".score").innerHTML = "SCORE: " + score;
+
+            if (lose == false) {
+                score += 1;
+            }
+
+            if (player_x >= 15) {
+                lose = true;
+            } else if (player_x <= -15) {
+                lose = true
+            }
+
+            if (lose == true) {
+                speed = 0;
+                speed_rotation = 0;
+                if (player_x >= 15) {
+                    if (player_x < 18) {
+                        camera_x += 0.15;
+                        player_x += 0.15;
+                    }
+                    if (player_y > -20) {
+                        player.rotation.z += 0.1;
+                        camera.rotation.z += 0.05;
+                        player_y -= 0.15;
+                        camera_y -= 0.15;
+                    }
+                } else if (player_x <= -15) {
+                    if (player_x > -18) {
+                        camera_x -= 0.15;
+                        player_x -= 0.15;
+                    }
+                    if (player_y > -20) {
+                        player.rotation.z -= 0.1;
+                        camera.rotation.z -= 0.05;
+                        player_y -= 0.15;
+                        camera_y -= 0.15;
+                    }
+                }
+                if (localStorage.getItem("score")) {
+                    localStorage.removeItem("score");
+                    localStorage.setItem("score", score);
+                } else {
+                    localStorage.setItem("score", score);
+                }
+                setTimeout(function(){
+                    document.location.href = "./lose.html";
+                }, 2000);
+            }
+
+            if (lose == false) {
+                if (moveStatus.left == true) {
+                    if (camera.rotation.z > -0.03) {
+                        camera.rotation.z -= 0.001;
+                    }
+                    player_x -= 0.085;
+                    camera_x -= 0.085;
+                    player.rotation.y -= 0.04;
+                } else if (moveStatus.right == true) {
+                    if (camera.rotation.z < 0.03) {
+                        camera.rotation.z += 0.001;
+                    }
+                    player_x += 0.085;
+                    camera_x += 0.085;
+                    player.rotation.y += 0.04;
+                }
+            }
+
+            if (moveStatus.right == false && moveStatus.left == false) {
+                if (camera.rotation.z > 0) {
+                    camera.rotation.z -= 0.001;
+                } else if (camera.rotation.z < 0) {
+                    camera.rotation.z += 0.001;
+                }
+            }
+
+            if (met_speed < 2) {
+                met_speed += 0.0005;
+            }
+
+            if (speed < 0.2) {
+                speed += 0.00005;
+                enemy_speed += 0.00005;
+                speed_rotation += 0.00005;
+            }
+
+            document.addEventListener("touchstart", (event) => {
+                x = event.touches[0].clientX;
+                y = event.touches[0].clientY;
+            });
+            document.addEventListener('touchmove', (event) => {
+                let cx = event.touches[0].clientX;
+                let cy = event.touches[0].clientY;
+                console.log(cx);
+                if (cx >= x) {
+                    moveStatus.right = true;
+                } else if (cx <= x) {
+                    moveStatus.left = true;
+                }
+            });
+            document.addEventListener("touchend", (event) => {
+                moveStatus.right = false;
+                moveStatus.left = false;
+            });
+            
+            planet.rotation.y += 0.005;
+            planet.rotation.x += 0.005;
+            planet.rotation.z += 0.005;
+
+            floor_z += speed;
+            player.rotation.x -= speed_rotation;
+
+            floor.position.x = floor_x;
+            floor.position.y = floor_y;
+            floor.position.z = floor_z;
+
+            camera.position.x = camera_x;
+            camera.position.y = camera_y;
+            camera.position.z = camera_z;
+
+            player.position.x = player_x;
+            player.position.y = player_y;
+            player.position.z = player_z;
+
+            renderer.render(scene, camera);
+        }
+        animate();
+    </script>
+</body>
+</html>
