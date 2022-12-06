@@ -77,7 +77,7 @@
 
         let audio = new Audio();
         audio.src = "../music/gameSound.mp3";
-        //audio.autoplay = true;
+        audio.autoplay = true;
 
         let score = 0;
         let lose = false;
@@ -221,7 +221,7 @@
                 }
 
                 if (player_x <= x + 2 && player_x >= x - 2 && player_z <= z + 2 && player_z >= z) {
-                    //lose = true;
+                    lose = true;
                 }
             }
 
